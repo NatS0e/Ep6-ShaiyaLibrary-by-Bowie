@@ -15,9 +15,6 @@ using namespace shaiya;
 
 namespace item_effect
 {
-    constexpr int town_scroll_cast_time = 5000;
-    constexpr int town_scroll_max_location = 2;
-
     int handler(CUser* user, CItem* item, CGameData::ItemEffect effect, int bag, int slot)
     {
         switch (effect)
@@ -78,7 +75,7 @@ namespace item_effect
             user->recallMapId = gateKeeper->gate[user->townScrollLocation].mapId;
             user->recallPos = gateKeeper->gate[user->townScrollLocation].outPos;
             user->recallType = RecallType::TownTeleportScroll;
-            user->recallTime = GetTickCount() + town_scroll_cast_time;
+            user->recallTime = GetTickCount() + 5000;
 
             ItemCast packet{ 0x221, user->id };
             CObject::PSendViewCombat(user, &packet, sizeof(ItemCast));
@@ -114,7 +111,7 @@ namespace item_effect
             return;
 
         auto location = util::read_bytes<std::uint8_t>(buffer, 4);
-        if (location > town_scroll_max_location)
+        if (location > 2)
             return;
 
         user->recallItemBag = bag;

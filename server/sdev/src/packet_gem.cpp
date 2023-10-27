@@ -20,17 +20,6 @@ using namespace shaiya;
 
 namespace packet_gem
 {
-    enum struct PerfectLapisianType : UINT8
-    {
-        Weapon,
-        Armor
-    };
-
-    constexpr int max_reqwis = 99;
-    constexpr int weapon_lapisian_plus = 95004;
-    constexpr int hot_time_lapisian = 95005;
-    constexpr int armor_lapisian_plus = 95009;
-
     int find_available_slot(CUser* user, int bag)
     {
         for (int slot = 0; slot < MAX_INVENTORY_SLOT; ++slot)
@@ -43,14 +32,22 @@ namespace packet_gem
     bool is_perfect_lapisian(CItem* lapisian, CItem* upgradeItem)
     {
         auto enchantStep = CItem::GetEnchantStep(upgradeItem);
-        auto itemId = lapisian->itemInfo->itemId;
+        auto itemId = static_cast<PerfectLapisian>(lapisian->itemInfo->itemId);
         auto lapisianType = static_cast<PerfectLapisianType>(lapisian->itemInfo->country);
 
         if (CItem::IsWeapon(upgradeItem))
         {
             if (enchantStep < 10)
-                if (itemId == weapon_lapisian_plus || itemId == hot_time_lapisian)
+            {
+                switch (itemId)
+                {
+                case PerfectLapisian::WeaponLapisianPlus:
+                case PerfectLapisian::HotTimeLapisian:
                     return true;
+                default:
+                    break;
+                }
+            }
 
             if (lapisianType == PerfectLapisianType::Weapon && lapisian->itemInfo->range == enchantStep)
                 return true;
@@ -58,8 +55,16 @@ namespace packet_gem
         else
         {
             if (enchantStep < 10)
-                if (itemId == armor_lapisian_plus || itemId == hot_time_lapisian)
+            {
+                switch (itemId)
+                {
+                case PerfectLapisian::ArmorLapisianPlus:
+                case PerfectLapisian::HotTimeLapisian:
                     return true;
+                default:
+                    break;
+                }
+            }
 
             if (lapisianType == PerfectLapisianType::Armor && lapisian->itemInfo->range == enchantStep)
                 return true;
@@ -201,7 +206,7 @@ namespace packet_gem
             return;
         }
 
-        if (item->itemInfo->reqWis <= 0 || item->itemInfo->reqWis > max_reqwis)
+        if (item->itemInfo->reqWis <= 0 || item->itemInfo->reqWis > MAX_REQWIS)
         {
             SConnection::Send(&user->connection, &packet, 3);
             return;
@@ -517,8 +522,6 @@ void __declspec(naked) naked_0x479FB4()
         // chaotic squares: not on to-do list
 
         case_0x830:
-        jmp exit_switch
-
         case_0x832:
         exit_switch:
         pop edi

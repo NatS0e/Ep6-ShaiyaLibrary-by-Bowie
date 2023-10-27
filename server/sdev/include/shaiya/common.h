@@ -83,6 +83,7 @@ defined SHAIYA_EP6_4_PT
 #define MAX_INVENTORY_BAG 6
 #define MAX_INVENTORY_SLOT 24
 #define MAX_MYSHOP_SLOT 20
+#define MAX_REQWIS 99
 #define MAX_WAREHOUSE_SLOT 240
 
 typedef unsigned Address;
@@ -268,6 +269,19 @@ enum MapId
     RewardMap,
     WaitingRoom = 108,
     StableErdeBattleZone
+};
+
+enum struct PerfectLapisian : UINT32
+{
+    WeaponLapisianPlus = 95004,
+    HotTimeLapisian = 95005,
+    ArmorLapisianPlus = 95009
+};
+
+enum struct PerfectLapisianType : UINT8
+{
+    Weapon,
+    Armor
 };
 
 enum struct Permission : UINT8

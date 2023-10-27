@@ -26,11 +26,6 @@ namespace packet_shop
     void raise_event_0105(bool enable)
     {
         PacketBuffer0105 packet{};
-        packet.u0x00 = 0;
-        packet.p0x04 = &packet.u0x0C;
-        packet.u0x08 = 0;
-        // 00 00 05 01
-        packet.u0x0C = 0x1050000;
         packet.enable = enable;
         CClientToMgr::OnRecv(&packet);
     }
@@ -38,11 +33,6 @@ namespace packet_shop
     void raise_event_1B02(CUser* user)
     {
         PacketBuffer1B02 packet{};
-        packet.u0x00 = 0;
-        packet.p0x04 = &packet.u0x0C;
-        packet.u0x08 = 0;
-        // 00 00 02 1B
-        packet.u0x0C = 0x1B020000;
         packet.userId = user->userId;
         packet.charId = user->charId;
         CClientToMgr::OnRecv(&packet);
@@ -51,11 +41,6 @@ namespace packet_shop
     void raise_event_1B03(CUser* user, const std::string& targetName, const std::string& productCode, int itemPrice)
     {
         PacketBuffer1B03 packet{};
-        packet.u0x00 = 0;
-        packet.p0x04 = &packet.u0x0C;
-        packet.u0x08 = 0;
-        // 00 00 03 1B
-        packet.u0x0C = 0x1B030000;
         packet.userId = user->userId;
 
         StringCbCopyA(packet.productCode.data(), packet.productCode.size(), productCode.data());
@@ -80,7 +65,7 @@ namespace packet_shop
             }).detach();
     }
 
-    void set_pay_letter_enable_async(bool enable)
+    void present_enable_async(bool enable)
     {
         std::thread([=] {
             raise_event_0105(enable);
@@ -297,7 +282,7 @@ void hook::packet_shop()
     util::detour((void*)0x47D525, naked_0x47D525, 5);
 
     // fake a 0x105 event
-    packet_shop::set_pay_letter_enable_async(true);
+    packet_shop::present_enable_async(true);
 
     #ifdef WITH_ITEM_DURATION
     // CUser::PacketShop case 0x2602

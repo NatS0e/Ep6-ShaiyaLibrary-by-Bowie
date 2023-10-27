@@ -5,9 +5,6 @@ namespace shaiya
 {
     // g_nPayLetterEnable 0x58799C
 
-    // CClientToMgr::OnRecv
-    // ebx = packet
-
     #pragma pack(push, 1)
     struct PayLetterEnable
     {
@@ -15,14 +12,16 @@ namespace shaiya
         bool enable;
     };
 
-    // CClientToMgr::OnRecv handles this packet at address 0x4069CB
-    // the result is g_nPayLetterEnable being set to false because the PayLetter server is not implemented
+    // CClientToMgr::OnRecv
+    // ebx = packet
+    // handler: 0x4069CB
+
     struct PacketBuffer0105
     {
         ULONG u0x00;
-        void* p0x04;
+        void* p0x04{ &u0x0C };
         ULONG u0x08;
-        ULONG u0x0C;
+        ULONG u0x0C{ 0x1050000 };
         bool enable;  // ebx+0x02
         // 0x11
     };

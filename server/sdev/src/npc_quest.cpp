@@ -14,9 +14,6 @@ using namespace shaiya;
 
 namespace npc_quest
 {
-    constexpr int max_result_index = 5;
-    constexpr int result_list_size = 3;
-
     void send_admin_remove(CUser* user, CQuest* quest)
     {
         QuestEndResultOutgoing packet{};
@@ -37,7 +34,7 @@ namespace npc_quest
         auto npcId = util::read_bytes<std::uint32_t>(buffer, 2);
         auto resultIndex = util::read_bytes<std::uint8_t>(buffer, 9);
 
-        if (resultIndex > max_result_index)
+        if (resultIndex >= quest->questInfo->result.size())
         {
             send_failure_result(user, quest, npcId);
             return;
@@ -53,7 +50,7 @@ namespace npc_quest
         packet.gold = quest->questInfo->result[resultIndex].gold;
         auto& result = quest->questInfo->result[resultIndex];
 
-        for (int i = 0; i < result_list_size; ++i)
+        for (std::size_t i = 0; i < result.item.size(); ++i)
         {
             #ifdef WITH_EXTENDED_QUEST_RESULT
             int type = result.item[i].type;

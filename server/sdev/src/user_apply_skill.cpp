@@ -13,7 +13,7 @@ using namespace shaiya;
 
 namespace user_apply_skill
 {
-    void send_frenzied_state(CUser* user, CGameData::SkillInfo* skillInfo)
+    void send_frenzy_state(CUser* user, CGameData::SkillInfo* skillInfo)
     {
         SkillUseOutgoing packet{};
         packet.senderId = user->id;
@@ -59,7 +59,7 @@ namespace user_apply_skill
         }
     }
 
-    void maybe_send_keep_damage(CUser* user)
+    void send_keep_damage(CUser* user)
     {
         if (!user)
             return;
@@ -98,7 +98,7 @@ namespace user_apply_skill
         case SkillId::FrenziedFinesse:
         case SkillId::FrenziedFortune:
         {
-            send_frenzied_state(sender, skillInfo);
+            send_frenzy_state(sender, skillInfo);
             return;
         }
         default:
@@ -127,7 +127,7 @@ namespace user_apply_skill
         return false;
     }
 
-    void remove_activable_skill(CUser* user)
+    void remove_activable(CUser* user)
     {
         if (user->activableSkill.triggered)
         {
@@ -208,7 +208,7 @@ void __declspec(naked) naked_0x428AD5()
 
         lea edx,[esi-0xD0]
         push edx // user
-        call user_apply_skill::maybe_send_keep_damage
+        call user_apply_skill::send_keep_damage
         add esp,0x4
 
         popad
@@ -225,7 +225,7 @@ void __declspec(naked) naked_0x49861D()
         pushad
 
         push esi // user
-        call user_apply_skill::remove_activable_skill
+        call user_apply_skill::remove_activable
         add esp,0x4
 
         popad

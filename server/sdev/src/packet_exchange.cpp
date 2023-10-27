@@ -40,7 +40,7 @@ namespace packet_exchange
         SConnection::Send(&user->exchange.user->connection, &packet2, sizeof(ExchangeOutgoing));
     }
 
-    void exchange_confirm_handler(CUser* user, Packet buffer)
+    void confirm_handler(CUser* user, Packet buffer)
     {
         if (!user->exchange.user)
             return;
@@ -88,16 +88,16 @@ namespace packet_exchange
 
     void maybe_reset_state(CUser* user)
     {
-        if (!user->exchange.confirmState)
-            if (!user->exchange.user->exchange.confirmState)
-                return;
+        if (!user->exchange.confirmState && !user->exchange.user->exchange.confirmState)
+            return;
 
         reset_state(user);
     }
 
-    void send_exchange_item(CUser* user, CUser* exchangeUser, Packet buffer)
+    void send_item(CUser* user, CUser* exchangeUser, Packet buffer, bool pvp)
     {
         ExchangeItem packet{};
+        packet.opcode = pvp ? 0x240D : 0xA09;
         packet.destSlot = util::read_bytes<std::uint8_t>(buffer, 5);
 
         auto bag = util::read_bytes<std::uint8_t>(buffer, 2);
@@ -124,36 +124,6 @@ namespace packet_exchange
         packet.craftName = item->craftName;
         SConnection::Send(&user->connection, &packet, sizeof(ExchangeItem));
     }
-
-    void send_exchange_pvp_item(CUser* user, CUser* exchangeUser, Packet buffer)
-    {
-        BattleExchangeItem packet{};
-        packet.destSlot = util::read_bytes<std::uint8_t>(buffer, 5);
-
-        auto bag = util::read_bytes<std::uint8_t>(buffer, 2);
-        auto slot = util::read_bytes<std::uint8_t>(buffer, 3);
-
-        if (!bag || bag > exchangeUser->bagsUnlocked || slot >= MAX_INVENTORY_SLOT)
-            return;
-
-        auto& item = exchangeUser->inventory[bag][slot];
-        if (!item)
-            return;
-
-        packet.type = item->type;
-        packet.typeId = item->typeId;
-        packet.count = util::read_bytes<std::uint8_t>(buffer, 4);
-        packet.quality = item->quality;
-        packet.gems = item->gems;
-
-        #ifdef WITH_ITEM_DURATION
-        packet.toDate = ServerTime::GetExpireTime(item->makeTime, item->itemInfo->range);
-        packet.fromDate = packet.toDate ? item->makeTime : 0;
-        #endif
-
-        packet.craftName = item->craftName;
-        SConnection::Send(&user->connection, &packet, sizeof(BattleExchangeItem));
-    }
 }
 
 unsigned u0x47D969 = 0x47D969;
@@ -172,7 +142,7 @@ void __declspec(naked) naked_0x47D964()
 
         push edi // buffer
         push ebx // user
-        call packet_exchange::exchange_confirm_handler
+        call packet_exchange::confirm_handler
         add esp,0x8
 
         popad
@@ -269,11 +239,12 @@ void __declspec(naked) naked_0x47DE7B()
     {
         pushad
 
+        push 0x0
         push edi // packet
         push ebx // exchange user
         push esi // user
-        call packet_exchange::send_exchange_item
-        add esp,0xC
+        call packet_exchange::send_item
+        add esp,0x10
 
         popad
 
@@ -288,11 +259,12 @@ void __declspec(naked) naked_0x48C69A()
     {
         pushad
 
+        push 0x1
         push edi // packet
         push ebp // exchange user
         push esi // user
-        call packet_exchange::send_exchange_pvp_item
-        add esp,0xC
+        call packet_exchange::send_item
+        add esp,0x10
 
         popad
 

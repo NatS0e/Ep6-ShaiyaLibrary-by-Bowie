@@ -18,31 +18,23 @@ using namespace shaiya;
 
 namespace packet_character
 {
-    // custom packets
-
-    #pragma pack(push, 1)
-    struct DBNameAvailableRequest
-    {
-        UINT16 opcode{ 0x40D };
-        UserId userId;
-        Array<char, 19> charName;
-    };
-
-    struct DBNameAvailableResponse
-    {
-        UINT16 opcode{ 0x40D };
-        UserId userId;
-        bool available;
-    };
-    #pragma pack(pop)
-
     void name_available_handler(CUser* user, const char* name)
     {
         constexpr int packet_size_without_name = 6;
         constexpr int min_name_len = 3;
         constexpr int max_name_len = 13;
 
-        DBNameAvailableRequest request{};
+        #pragma pack(push, 1)
+        // custom
+        struct DBNameAvailableIncoming
+        {
+            UINT16 opcode{ 0x40D };
+            UserId userId;
+            Array<char, 19> charName;
+        };
+        #pragma pack(pop)
+
+        DBNameAvailableIncoming request{};
         request.userId = user->userId;
 
         std::string charName(name);

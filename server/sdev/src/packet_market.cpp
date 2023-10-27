@@ -4,11 +4,6 @@
 #include <include/main.h>
 #include <include/util.h>
 
-namespace packet_market
-{
-
-}
-
 unsigned u0x486320 = 0x486320;
 void __declspec(naked) naked_0x486319()
 {
